@@ -5,7 +5,6 @@
  */
 
 var UI = require('ui');
-var Vector2 = require('vector2');
 var ajax = require('ajax');
 
 var main = new UI.Card({
@@ -37,22 +36,34 @@ main.on('click', 'up', function(e) {
   menu.show();
 });
 
+// We need this function so that we can use it in two different cases.
 function doThing(card) {
+  // Loading this could take some time; it'd be a good idea to show something/
+  // while they wait.
   card.body('Loading...');
+  // This makes a simple 'GET' request to our API; 'type': 'json' makes it parse out
+  // the JSON into something we can use.
   ajax({url: 'http://wearables-api.herokuapp.com/phrase', 'type': 'json'},
       function(data) {
+        // It worked! Construct a sentence to show on screen.
         card.body(data.preamble + " " + data.thing + ".\n\n" + data.action);
       }, function(data) {
+        // It didn't work. :(
         card.body("I don't know. :(");
       });
 }
 
 main.on('click', 'select', function(e) {
+  // Create a new card in which to show our stellar wearable concepts.
   var card = new UI.Card({scrollable: true, style: 'small'});
+  // Do the thing! As defined above.
   doThing(card);
+  // When they press the select button, we want to get them another quote.
+  // Let's do the thing again.
   card.on('click', 'select', function() {
     doThing(card);
   });
+  // Finally, make sure it actually shows up on-screen.
   card.show();
 });
 
@@ -63,3 +74,4 @@ main.on('click', 'down', function(e) {
   card.body('The simplest window type in Pebble.js.');
   card.show();
 });
+
